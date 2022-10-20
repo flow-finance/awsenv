@@ -18,6 +18,7 @@
   "author": "Nick Fredricks",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^18.11.3",
     "aws-sdk": "2.626.0"
   }
 }
