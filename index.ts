@@ -49,18 +49,19 @@ export async function getBinarySecretString(secretName: string, region: string):
  *
  * @param secrets Key value pair object to load into the environment
  */
-export function loadSecretsIntoEnv(secrets: {[key:string]: string}): void {
+export function loadSecretsIntoEnv(secrets: {[key:string]: string}, prefix:string=""): void {
     for (const key in secrets) {
+        const _key = prefix? `${prefix}_${key}` : key;
         // only load secret if it isn't loaded already
-        if (!process.env[key]) {
+        if (!process.env[_key]) {
             const secret =  typeof secrets[key] ===  'string' ? secrets[key].trim() : secrets[key]
             if (secret === "false" || secret === "False" || secret === "FALSE")
                 // @ts-ignore ignoring since typescript complains about putting a boolean in env
-                process.env[key] = false
+                process.env[_key] = false
             else if (secret === "true" || secret === "True" || secret === "TRUE")
                 // @ts-ignore ignoring since typescript complains about putting a boolean in env
-                process.env[key] = true
-            else process.env[key] = secret
+                process.env[_key] = true
+            else process.env[_key] = secret
         }
     }
 }
@@ -71,7 +72,7 @@ export function loadSecretsIntoEnv(secrets: {[key:string]: string}): void {
  * @param secretName the name of the secret
  * @param region the region the secret is in
  */
-export async function config(secretName: string, region?: string): Promise<void> {
+export async function config(secretName: string, region?: string, prefix: string=""): Promise<void> {
     const secrets = await getSecretObject(secretName, region)
-    loadSecretsIntoEnv(secrets)
+    loadSecretsIntoEnv(secrets, prefix)
 }
