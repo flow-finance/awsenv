@@ -51,7 +51,7 @@ As early as possible in your application, require and configure awsenv.
 require('@flypapertech/awsenv').config('someSecretName', 'optionalAWSRegion')
 ```
 
-`process.env` now has the keys and values you defined in your `.env` file.
+`process.env` now has the keys and values you defined in your secret.
 
 ```javascript
 const db = require('db')
