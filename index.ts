@@ -1,5 +1,5 @@
 
-import { SecretsManager } from "aws-sdk"
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
 /**
  * Gets a secret object from AWS secret manager
@@ -9,36 +9,14 @@ import { SecretsManager } from "aws-sdk"
  */
 export async function getSecretObject(secretName: string, region?: string): Promise<{ [key: string]: string }> {
     const config = (region) ? {region} : {}
-    const client = new SecretsManager(config)
+    const client = new SecretsManagerClient(config)
 
     try {
-        const data = await client.getSecretValue({ SecretId: secretName }).promise()
+        const command = new GetSecretValueCommand({ SecretId: secretName })
+        const data = await client.send(command);
+        console.log("AWS ENV", data);
         if (data.SecretString) return JSON.parse(data.SecretString)
         else return Promise.reject("Secret is binary, should you be asking for a binary secret?")
-    } catch (err) {
-        return Promise.reject(err)
-    }
-}
-
-/**
- * Gets a binary secret as a string from AWS secret manager
- *
- * @param secretName the name of the secret
- * @param region the region the secret is in
- */
-export async function getBinarySecretString(secretName: string, region: string): Promise<string> {
-    const client = new SecretsManager({
-        region: region
-    })
-
-    try {
-        const data = await client.getSecretValue({ SecretId: secretName }).promise()
-        if (data.SecretBinary && typeof data.SecretBinary === "string") {
-            const buff = Buffer.from(data.SecretBinary, "base64")
-            return buff.toString("ascii")
-        } else {
-            return Promise.reject("Secret is not binary, should you be asking for a non-binary secret?")
-        }
     } catch (err) {
         return Promise.reject(err)
     }
